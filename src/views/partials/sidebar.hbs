@@ -1,0 +1,50 @@
+<nav class="sidebar-menu p-2">
+  <!-- 1. TỔNG QUAN -->
+  <a class="nav-link d-flex align-items-center" href="/">
+    <i class="bi bi-speedometer2 me-2 text-secondary"></i>
+    <span>Tổng quan (Dashboard)</span>
+  </a>
+
+  <!-- 2. QUẢN LÝ TÀI SẢN -->
+  <div class="sidebar-heading">
+    Tài sản & Nghiệp vụ
+  </div>
+  <a class="nav-link d-flex align-items-center" href="/assets">
+    <i class="bi bi-laptop me-2 text-secondary"></i>
+    <span>Hồ sơ tài sản</span>
+  </a>
+
+  <a class="nav-link d-flex align-items-center" href="/requests">
+    <i class="bi bi-file-earmark-check me-2 text-secondary"></i>
+    <span>Hộp phiếu & Duyệt</span>
+  </a>
+
+  <!-- 3. HỆ THỐNG & CƠ CẤU -->
+  {{#if can.manageMasterData}}
+  <div class="sidebar-heading">
+    Hệ thống & Cơ cấu
+  </div>
+  {{#if can.manageSystem}}
+  <a class="nav-link d-flex align-items-center" href="/employees">
+    <i class="bi bi-person me-2 text-secondary"></i>
+    <span>Người dùng & Vai trò</span>
+  </a>
+  {{/if}}
+  <a class="nav-link d-flex align-items-center" href="/departments">
+    <i class="bi bi-diagram-3 me-2 text-secondary"></i>
+    <span>Cơ cấu tổ chức</span>
+  </a>
+  <a class="nav-link d-flex align-items-center" href="/locations">
+    <i class="bi bi-geo-alt me-2 text-secondary"></i>
+    <span>Vị trí tài sản</span>
+  </a>
+  <a class="nav-link d-flex align-items-center" href="/categories">
+    <i class="bi bi-grid me-2 text-secondary"></i>
+    <span>Danh mục dùng chung</span>
+  </a>
+  <a class="nav-link d-flex align-items-center" href="/suppliers">
+    <i class="bi bi-truck me-2 text-secondary"></i>
+    <span>Nhà cung cấp</span>
+  </a>
+  {{/if}}
+</nav>
