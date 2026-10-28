@@ -1,0 +1,249 @@
+<div class="container-fluid p-0">
+  <div class="card">
+    <div class="card-header bg-white py-3">
+      <div class="row align-items-center g-2">
+        <div class="col-md-5">
+          <h5 class="mb-0 fw-bold text-dark">Quản lý Hồ sơ Tài sản</h5>
+          <small class="text-muted">Hồ sơ tài sản cố định và công cụ dụng cụ toàn hệ thống</small>
+        </div>
+
+        <div class="col-md-7 d-flex flex-wrap justify-content-md-end align-items-center gap-2">
+          <!-- Form tìm kiếm và lọc trạng thái tự động -->
+          <form action="/assets" method="get" class="d-flex align-items-center gap-2 m-0" role="search">
+            <div class="input-group input-group-sm" style="width: 250px;">
+              <span class="input-group-text bg-light text-muted"><i class="bi bi-search"></i></span>
+              <input
+                type="text"
+                name="name"
+                class="form-control"
+                value="{{searchName}}"
+                placeholder="Tìm theo mã, tên, số seri..."
+              />
+            </div>
+
+            <!-- Lọc theo trạng thái -->
+            <select name="status" class="form-select form-select-sm" style="width: 160px;" onchange="this.form.submit()">
+              <option value="">Tất cả trạng thái</option>
+              <option value="in_stock" {{#if (eq status "in_stock")}}selected{{/if}}>Trong kho</option>
+              <option value="in_use" {{#if (eq status "in_use")}}selected{{/if}}>Đang sử dụng</option>
+              <option value="maintenance" {{#if (eq status "maintenance")}}selected{{/if}}>Đang bảo trì</option>
+              <option value="disposed" {{#if (eq status "disposed")}}selected{{/if}}>Đã thanh lý</option>
+            </select>
+          </form>
+
+          <!-- Thêm tài sản mới -->
+          {{#if canManageAssets}}
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addAssetModal"
+          >
+            <i class="bi bi-plus-lg me-1"></i> Thêm tài sản mới
+          </button>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bảng danh sách tài sản -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" class="ps-3 text-nowrap">#</th>
+            <th scope="col" class="text-nowrap">Mã tài sản</th>
+            <th scope="col">Tên tài sản</th>
+            <th scope="col">Loại tài sản</th>
+            <th scope="col">Đơn vị quản lý</th>
+            <th scope="col">Người sử dụng</th>
+            <th scope="col">Nguyên giá</th>
+            <th scope="col" class="text-center text-nowrap">Trạng thái</th>
+            <th scope="col" class="text-end pe-3 text-nowrap">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each assets}}
+            <tr>
+              <td class="ps-3 text-muted">{{addOne @index}}</td>
+              <td class="fw-semibold font-monospace">
+                <a href="/assets/{{this.id}}" class="text-decoration-none fw-bold text-primary">
+                  {{this.code}}
+                </a>
+              </td>
+              <td>
+                <a href="/assets/{{this.id}}" class="text-decoration-none text-dark fw-semibold">
+                  {{this.name}}
+                </a>
+                {{#if this.serial_no}}
+                  <small class="text-muted d-block font-monospace">SN: {{this.serial_no}}</small>
+                {{/if}}
+              </td>
+              <td><span class="badge text-bg-light border">{{this.category_name}}</span></td>
+              <td>{{this.org_unit_name}}</td>
+              <td>
+                {{#if this.current_employee_name}}
+                  <span class="text-dark fw-semibold">{{this.current_employee_name}}</span>
+                {{else if (eq this.status "in_use")}}
+                  <span class="text-primary small fw-semibold">Sử dụng chung</span>
+                {{else if (eq this.status "in_stock")}}
+                  <span class="badge text-bg-light text-muted border fst-italic">Lưu kho</span>
+                {{else}}
+                  <span class="text-muted small fst-italic">--</span>
+                {{/if}}
+              </td>
+              <td class="text-dark fw-semibold">{{formatCurrency this.original_cost}}</td>
+              <td class="text-center">{{{assetStatusBadge this.status}}}</td>
+              <td class="text-end pe-3 text-nowrap">
+                <div class="d-inline-flex gap-1">
+                  <a href="/assets/{{this.id}}" class="btn btn-primary text-nowrap">Chi tiết</a>
+                  {{#if ../canManageAssets}}
+                  <a href="/assets/{{this.id}}/edit" class="btn btn-warning text-nowrap">Sửa</a>
+                  {{/if}}
+                </div>
+              </td>
+            </tr>
+          {{else}}
+            <tr>
+              <td colspan="9" class="text-center py-5 text-muted">
+                Không tìm thấy tài sản nào phù hợp.
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Phân trang Bootstrap 5 chuẩn -->
+    {{#if (gt totalPages 1)}}
+      <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <div class="small text-muted">
+          Trang <b>{{page}}</b> / {{totalPages}}
+        </div>
+        <nav aria-label="Phân trang">
+          <ul class="pagination pagination-sm mb-0">
+            {{#each pages}}
+              <li class="page-item {{#if this.active}}active{{/if}}">
+                <a class="page-link" href="/assets?page={{this.number}}&name={{../searchName}}&status={{../status}}">
+                  {{this.number}}
+                </a>
+              </li>
+            {{/each}}
+          </ul>
+        </nav>
+      </div>
+    {{/if}}
+  </div>
+</div>
+
+<!-- Modal: Thêm mới tài sản tại chỗ -->
+<div class="modal fade" id="addAssetModal" tabindex="-1" aria-labelledby="addAssetModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="/assets/create" method="POST">
+        <div class="modal-header bg-light py-3">
+          <h5 class="modal-title fs-6 fw-bold text-dark" id="addAssetModalLabel">
+            <i class="bi bi-plus-circle me-1 text-primary"></i> Khai báo Hồ sơ Tài sản mới
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Mã tài sản</label>
+              <input type="text" name="code" class="form-control" placeholder="Để trống để tự sinh mã (VD: TS-2026-xxxxx)">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Tên tài sản <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="Ví dụ: Laptop Lenovo ThinkPad T14" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Loại tài sản <span class="text-danger">*</span></label>
+              <select name="category_id" class="form-select" required>
+                <option value="">-- Chọn loại tài sản --</option>
+                {{#each formData.categories}}
+                  <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Nhà cung cấp</label>
+              <select name="supplier_id" class="form-select">
+                <option value="">-- Chọn nhà cung cấp --</option>
+                {{#each formData.suppliers}}
+                  <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Đơn vị / Phòng ban quản lý <span class="text-danger">*</span></label>
+              <select name="org_unit_id" class="form-select" required>
+                {{#each formData.orgUnits}}
+                  <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Vị trí phòng / Kệ lưu trữ</label>
+              <select name="location_id" class="form-select">
+                <option value="">-- Chọn vị trí --</option>
+                {{#each formData.locations}}
+                  <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+
+            <!-- Người tiếp nhận -->
+            <div class="col-md-12">
+              <div class="p-3 bg-light rounded border">
+                <label class="form-label small fw-semibold mb-1">
+                  <i class="bi bi-person-badge me-1 text-primary"></i> Người tiếp nhận bàn giao sử dụng (Tùy chọn)
+                </label>
+                <select name="assignee_id" class="form-select">
+                  <option value="">-- Không giao (Mặc định lưu vào Kho - Trạng thái: Trong kho) --</option>
+                  {{#each formData.users}}
+                    <option value="{{this.id}}">{{this.full_name}} ({{this.email}})</option>
+                  {{/each}}
+                </select>
+                <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
+                  * Nếu chọn người nhận: Tài sản chuyển thành <b>Đang sử dụng</b>. Nếu để trống: Tài sản được lưu <b>Trong kho</b>.
+                </small>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Nguyên giá (VNĐ)</label>
+              <input type="number" name="original_cost" class="form-control" placeholder="0" min="0" step="1000">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Ngày mua / Tiếp nhận</label>
+              <input type="date" name="purchase_date" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Thời hạn sử dụng (Tháng)</label>
+              <input type="number" name="useful_life_months" class="form-control" value="36" min="1">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label small fw-semibold">Số sê-ri (Serial Number) / IMEI</label>
+              <input type="text" name="serial_no" class="form-control" placeholder="Ví dụ: SN-9482048123">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+          <button type="submit" class="btn btn-sm btn-primary">
+            <i class="bi bi-check2-circle me-1"></i> Lưu hồ sơ tài sản
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
