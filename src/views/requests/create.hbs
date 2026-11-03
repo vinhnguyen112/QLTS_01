@@ -1,0 +1,79 @@
+<div class="container-fluid p-0">
+  <div class="card border shadow-none" style="max-width: 700px; margin: auto;">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold text-dark">Lập phiếu đề xuất</h5>
+      <a href="/requests" class="btn btn-secondary btn-sm">Quay lại</a>
+    </div>
+
+    <form action="/requests/create" method="POST">
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Loại đề xuất <span class="text-danger">*</span></label>
+          <select class="form-select" name="type" id="typeSelect" onchange="toggleType()" required>
+            <option value="purchase">1. Mua sắm tài sản mới</option>
+            <option value="assign">2. Cấp phát tài sản từ kho</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Tiêu đề đề xuất <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="title" placeholder="Ví dụ: Đề xuất mua máy tính làm việc" required />
+        </div>
+
+        <!-- Khối Mua sắm mới -->
+        <div id="purchaseBlock">
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Tên thiết bị</label>
+              <input type="text" class="form-control" name="item_name" placeholder="Ví dụ: Laptop Dell Vostro 3520" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Loại danh mục</label>
+              <select class="form-select" name="category_id">
+                <option value="">-- Chọn loại danh mục --</option>
+                {{#each categories}}
+                  <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Đơn giá ước tính (VNĐ)</label>
+            <input type="number" class="form-control" name="estimated_cost" placeholder="Ví dụ: 15000000" />
+          </div>
+        </div>
+
+        <!-- Khối Cấp phát từ kho -->
+        <div id="assignBlock" style="display: none;">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Chọn tài sản trong kho cần cấp phát</label>
+            <select class="form-select" name="asset_id">
+              <option value="">-- Chọn tài sản đang trong kho --</option>
+              {{#each assets}}
+                <option value="{{this.id}}">[{{this.code}}] {{this.name}} ({{formatCurrency this.original_cost}})</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label small fw-semibold">Lý do đề xuất <span class="text-danger">*</span></label>
+          <textarea class="form-control" name="reason" rows="3" placeholder="Nêu rõ mục đích và lý do cần trang bị..." required></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+          <a href="/requests" class="btn btn-secondary btn-sm">Hủy</a>
+          <button type="submit" class="btn btn-primary btn-sm px-4">Gửi đề xuất</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleType() {
+    const isPurchase = document.getElementById('typeSelect').value === 'purchase';
+    document.getElementById('purchaseBlock').style.display = isPurchase ? 'block' : 'none';
+    document.getElementById('assignBlock').style.display = isPurchase ? 'none' : 'block';
+  }
+</script>
