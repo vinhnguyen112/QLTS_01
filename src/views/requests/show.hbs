@@ -1,0 +1,76 @@
+<div class="container-fluid p-0">
+  <div class="card border shadow-none" style="max-width: 800px; margin: auto;">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <h5 class="mb-0 fw-bold text-dark">{{request.title}}</h5>
+          {{{requestStatusBadge request.status}}}
+        </div>
+        <small class="text-muted font-monospace">{{request.code}}</small>
+      </div>
+      <a href="/requests" class="btn btn-secondary btn-sm">Quay lại</a>
+    </div>
+
+    <div class="card-body p-4">
+      <!-- Bảng thông tin chi tiết -->
+      <table class="table table-borderless align-middle mb-4">
+        <tbody>
+          <tr class="border-bottom">
+            <td class="text-muted py-2" style="width: 30%;">Loại đề xuất</td>
+            <td class="fw-semibold text-dark py-2">{{{requestTypeBadge request.type}}}</td>
+          </tr>
+          <tr class="border-bottom">
+            <td class="text-muted py-2">Người đề xuất</td>
+            <td class="fw-semibold text-dark py-2">{{request.requester_name}}</td>
+          </tr>
+          <tr class="border-bottom">
+            <td class="text-muted py-2">Ngày lập phiếu</td>
+            <td class="text-dark py-2">{{formatDate request.created_at}}</td>
+          </tr>
+          {{#if (eq request.type "purchase")}}
+          <tr class="border-bottom">
+            <td class="text-muted py-2">Thiết bị mua mới</td>
+            <td class="fw-bold text-primary py-2">{{request.item_name}}</td>
+          </tr>
+          <tr class="border-bottom">
+            <td class="text-muted py-2">Danh mục phân loại</td>
+            <td class="text-dark py-2">{{request.category_name}}</td>
+          </tr>
+          <tr class="border-bottom">
+            <td class="text-muted py-2">Chi phí ước tính</td>
+            <td class="fw-bold text-dark py-2">{{formatCurrency request.total_estimated_cost}}</td>
+          </tr>
+          {{/if}}
+          {{#if (eq request.type "assign")}}
+          <tr class="border-bottom">
+            <td class="text-muted py-2">Tài sản cấp phát từ kho</td>
+            <td class="fw-bold text-primary py-2">[{{request.asset_code}}] {{request.asset_name}}</td>
+          </tr>
+          {{/if}}
+          <tr>
+            <td class="text-muted py-2 align-top">Lý do đề xuất</td>
+            <td class="text-dark py-2">{{request.reason}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Thao tác phê duyệt dành cho lãnh đạo/quản lý -->
+      {{#if canApprove}}
+      <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+        <div>
+          <span class="fw-bold text-dark d-block">Xét duyệt đề xuất này</span>
+          <small class="text-muted">Bạn có quyền phê duyệt hoặc từ chối phiếu yêu cầu</small>
+        </div>
+        <div class="d-flex gap-2">
+          <form action="/requests/{{request.id}}/reject" method="POST" onsubmit="confirmAction(event, 'Bạn có chắc chắn muốn từ chối đề xuất này?');">
+            <button type="submit" class="btn btn-danger btn-sm">Từ chối</button>
+          </form>
+          <form action="/requests/{{request.id}}/approve" method="POST" onsubmit="confirmAction(event, 'Xác nhận phê duyệt đề xuất này?');">
+            <button type="submit" class="btn btn-success btn-sm px-3">Phê duyệt</button>
+          </form>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
